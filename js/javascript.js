@@ -114,11 +114,12 @@ if (formLogin) {
                 // Login deu errado!
                 console.error('Erro no login:', error.code, error.message);
 
+                // Tenta encontrar o elemento de erro no HTML
+                const mensagemErro = document.getElementById('mensagem-erro-login');
+
                 // Mostra erros amigáveis para o usuário
-                if (error.code === 'auth/user-not-found') {
-                    mensagemErro.innerText = 'Usuário não encontrado. Verifique o e-mail.';
-                } else if (error.code === 'auth/wrong-password') {
-                    mensagemErro.innerText = 'Senha incorreta. Tente novamente.';
+                if (error.code === 'auth/invalid-login-credentials') {
+                    mensagemErro.innerText = 'E-mail ou senha incorretos. Tente novamente.';
                 } else {
                     mensagemErro.innerText = 'Ocorreu um erro ao fazer login.';
                 }
