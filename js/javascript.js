@@ -1,5 +1,8 @@
-document.addEventListener('DOMContentLoaded', function() {
-
+    // Import the functions you need from the SDKs you need
+    import { initializeApp } from "firebase/app";
+    // TODO: Add SDKs for Firebase products that you want to use
+    // https://firebase.google.com/docs/web/setup#available-libraries
+    
     // INICIALIZAÇÃO DO FIREBASE
     const firebaseConfig = {
         apiKey: "AIzaSyD1tb1lQVAhHd-cxagQf5wW5ntPoCBuBNs",
@@ -13,6 +16,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const app = initializeApp(firebaseConfig);
 
     // FIM DA INICIALIZAÇÃO
+
+document.addEventListener('DOMContentLoaded', function() {
     
     // --- PÁGINA DE CADASTRO ---
 
