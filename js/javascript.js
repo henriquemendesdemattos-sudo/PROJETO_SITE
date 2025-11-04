@@ -74,7 +74,7 @@ if (formCadastro) {
 // (ADICIONE ESTE NOVO BLOCO DE CÓDIGO ABAIXO)
 
 // 1. Tenta encontrar o formulário de LOGIN na página
-const formLogin = document.getElementById('form-login');
+const formLogin = document.getElementById('loginForm');
 
 // 2. Verifica se o formulário de LOGIN existe na página atual
 if (formLogin) {
