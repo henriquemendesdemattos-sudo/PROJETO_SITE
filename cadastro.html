@@ -55,9 +55,17 @@
                                     <label for="nome" class="form-label">Nome Completo</label>
                                     <input type="text" class="form-control" id="nome" required>
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-md-12">
                                     <label for="email" class="form-label">E-mail</label>
                                     <input type="email" class="form-control" id="email" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="senha" class="form-label">Senha</label>
+                                    <input type="password" class="form-control" id="senha" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="senha-confirmar" class="form-label">Confirmar Senha</label>
+                                    <input type="password" class="form-control" id="senha-confirmar" required>
                                 </div>
                                 <div class="col-md-6">
                                     <label for="cpf" class="form-label">CPF</label>
@@ -129,12 +137,17 @@
              </div>
         </div>
     </footer>
-
+    
     <!-- Link para o JavaScript do Bootstrap 5 -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" xintegrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     
     <!-- Link para o script do ViaCEP -->
     <script src="js/viacep.js"></script>
+
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+    
     <!-- Link para o nosso script JS unificado (simulação de envio) -->
     <script src="js/javascript.js"></script>
 </body>
