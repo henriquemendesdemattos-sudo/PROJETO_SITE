@@ -70,6 +70,62 @@ if (formCadastro) {
     });
 }
 
+    // --- PÁGINA DE LOGIN ---
+// (ADICIONE ESTE NOVO BLOCO DE CÓDIGO ABAIXO)
+
+// 1. Tenta encontrar o formulário de LOGIN na página
+const formLogin = document.getElementById('form-login');
+
+// 2. Verifica se o formulário de LOGIN existe na página atual
+if (formLogin) {
+
+    // 3. Adiciona um "ouvinte" para quando o formulário for enviado
+    formLogin.addEventListener('submit', (evento) => {
+        
+        // 4. Previne que a página recarregue
+        evento.preventDefault();
+
+        // 5. Pega os valores dos campos de e-mail e senha
+        const email = document.getElementById('email-login').value;
+        const senha = document.getElementById('senha-login').value;
+
+        // 6. Pega o elemento para mostrar mensagens de erro
+        const mensagemErro = document.getElementById('mensagem-erro-login');
+
+        console.log('Tentando logar:', email);
+
+        // 7. Chama a função do FIREBASE para FAZER LOGIN
+        firebase.auth().signInWithEmailAndPassword(email, senha)
+            .then((userCredential) => {
+                // Login deu certo!
+                console.log('Login bem-sucedido!', userCredential.user);
+                
+                // Limpa erros antigos
+                mensagemErro.innerText = "";
+                
+                // Avisa o usuário e redireciona
+                alert('Login efetuado com sucesso! Bem-vindo(a) de volta.');
+                
+                // Redireciona o usuário para a página principal
+                window.location.href = 'index.html'; 
+                
+            })
+            .catch((error) => {
+                // Login deu errado!
+                console.error('Erro no login:', error.code, error.message);
+
+                // Mostra erros amigáveis para o usuário
+                if (error.code === 'auth/user-not-found') {
+                    mensagemErro.innerText = 'Usuário não encontrado. Verifique o e-mail.';
+                } else if (error.code === 'auth/wrong-password') {
+                    mensagemErro.innerText = 'Senha incorreta. Tente novamente.';
+                } else {
+                    mensagemErro.innerText = 'Ocorreu um erro ao fazer login.';
+                }
+            });
+    });
+}
+
     // Função reutilizável para simular o envio de um formulário
     function simulateFormSubmit(formId, messageText) {
         const form = document.getElementById(formId);
