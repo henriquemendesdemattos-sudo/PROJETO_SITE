@@ -41,30 +41,41 @@ if (formCadastro) {
         firebase.auth().createUserWithEmailAndPassword(email, senha)
             .then((userCredential) => {
                 // Cadastro deu certo!
-                console.log('Usuário cadastrado com sucesso!', userCredential.user);
+                console.log('Usuário cadastrado com sucesso, enviando e-mail de verificação...', userCredential.user);
                 
-                // Limpa erros antigos
-                mensagemErro.innerText = ""; 
-                
-                // Avisa o usuário e redireciona
-                alert('Conta criada com sucesso! Você será redirecionado.');
-                
-                // IMPORTANTE: Redireciona o usuário para a página de "logado"
-                // (Mude 'dashboard.html' para sua página de perfil ou login)
-                window.location.href = 'dashboard.html'; // Ou 'login.html'
-                
+                // PEGA O USUÁRIO RECÉM-CRIADO
+                const user = userCredential.user;
+
+                // **NOVO PASSO: ENVIA O E-MAIL DE VERIFICAÇÃO**
+                user.sendEmailVerification()
+                    .then(() => {
+                        // E-mail de verificação enviado
+                        console.log('E-mail de verificação enviado para', user.email);
+                        
+                        // Avisa o usuário e redireciona para a página de login
+                        alert('Conta criada com sucesso! Enviamos um link de verificação para o seu e-mail. Por favor, verifique sua caixa de entrada e faça o login.');
+                        
+                        // **REDIRECIONAMENTO MUDOU (Conforme seu pedido)**
+                        window.location.href = 'login.html'; // Envia para a página de "login"
+                    })
+                    .catch((error) => {
+                        // Erro ao enviar o e-mail
+                        console.error('Erro ao enviar e-mail de verificação:', error);
+                        mensagemErro.innerText = 'Conta criada, mas falhamos ao enviar o e-mail de verificação.';
+                    });
+
             })
             .catch((error) => {
-                // Cadastro deu errado!
+                // (Código de erro do cadastro - sem alteração)
+// ... (código de erro existente)
                 console.error('Erro no cadastro:', error.code, error.message);
                 
-                // Mostra um erro amigável para o usuário
                 if (error.code === 'auth/weak-password') {
-                    mensagemErro.innerText = 'A senha é muito fraca. (Mínimo 6 caracteres)';
+// ... (código de erro existente)
                 } else if (error.code === 'auth/email-already-in-use') {
-                    mensagemErro.innerText = 'Este e-mail já está em uso.';
+// ... (código de erro existente)
                 } else {
-                    mensagemErro.innerText = 'Ocorreu um erro ao criar a conta.';
+// ... (código de erro existente)
                 }
             });
     });
@@ -128,7 +139,6 @@ if (formLogin) {
 }
 
 // --- PÁGINA DASHBOARD (O "GUARDA" E O LOGOUT) ---
-// (ADICIONE ESTE NOVO BLOCO DE CÓDIGO)
 
 // Esta é a função "Gatekeeper" (Porteiro) do Firebase.
 // Ela é chamada AUTOMATICAMENTE toda vez que a página carrega.
@@ -137,6 +147,7 @@ firebase.auth().onAuthStateChanged((user) => {
     // 1. Tenta encontrar os elementos da página de dashboard
     const loadingSpinner = document.getElementById('loading-spinner');
     const dashboardContent = document.getElementById('dashboard-content');
+    const welcomeMessage = document.getElementById('welcome-message');
     const botaoLogout = document.getElementById('logout');
 
     // 2. Estamos na página de dashboard?
@@ -144,28 +155,46 @@ firebase.auth().onAuthStateChanged((user) => {
     if (loadingSpinner) {
 
         if (user) {
-            // --- USUÁRIO ESTÁ LOGADO ---
-            console.log('Usuário logado:', user.email);
+            // --- USUÁRIO ESTÁ LOGADO (MAS ESTÁ VERIFICADO?)---
 
-            // 1. Esconde o "Carregando"
-            loadingSpinner.style.display = 'none';
-            
-            // 2. Mostra o conteúdo principal do dashboard
-            dashboardContent.style.display = 'block';
+            // **A NOVA VERIFICAÇÃO IMPORTANTE ESTÁ AQUI**
+            if (user.emailVerified) {
+                // --- SIM, USUÁRIO ESTÁ VERIFICADO ---
+                console.log('Usuário logado E verificado:', user.email);
 
-            // 3. Adiciona a função de "Sair" (Logout) ao botão
-            botaoLogout.addEventListener('click', () => {
-                firebase.auth().signOut()
-                    .then(() => {
-                        // Logout bem-sucedido
-                        alert('Você saiu. Redirecionando para o login...');
-                        window.location.href = 'login.html';
-                    })
-                    .catch((error) => {
-                        console.error('Erro ao fazer logout:', error);
-                    });
-            });
+                // Preenche o e-mail do usuário na mensagem de boas-vindas
+                welcomeMessage.innerText = `Olá, ${user.email}!`;
 
+                // Esconde o "Carregando"
+                loadingSpinner.style.display = 'none';
+                
+                // Mostra o conteúdo principal do dashboard
+                dashboardContent.style.display = 'block';
+
+                // Adiciona a função de "Sair" (Logout) ao botão
+                botaoLogout.addEventListener('click', () => {
+                    firebase.auth().signOut()
+                        .then(() => {
+// ... (código de logout existente)
+                            alert('Você saiu. Redirecionando para o login...');
+                            window.location.href = 'login.html';
+                        })
+                        .catch((error) => {
+                            console.error('Erro ao fazer logout:', error);
+                        });
+                });
+
+            } else {
+                // --- NÃO, USUÁRIO NÃO ESTÁ VERIFICADO ---
+                console.log('Usuário logado, MAS NÃO VERIFICADO.');
+                
+                // Desloga o usuário (opcional, mas recomendado)
+                firebase.auth().signOut();
+
+                // CHUTA O USUÁRIO para a página de login
+                alert('Seu e-mail ainda não foi verificado. Por favor, verifique sua caixa de entrada e faça o login novamente.');
+                window.location.href = 'login.html';
+            }
         } else {
             // --- USUÁRIO NÃO ESTÁ LOGADO ---
             console.log('Usuário não logado. Redirecionando...');
@@ -178,7 +207,7 @@ firebase.auth().onAuthStateChanged((user) => {
             window.location.href = 'login.html';
         }
     }
-    // Se não encontrou os elementos, não faz nada (estamos em outra página)
+    
 });
 
     // Função reutilizável para simular o envio de um formulário
