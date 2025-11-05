@@ -26,15 +26,73 @@ if (formCadastro) {
     formCadastro.addEventListener('submit', (evento) => {
         
         // 4. Previne que a página recarregue (comportamento padrão do form)
-        evento.preventDefault(); 
+        evento.preventDefault();
         
-        // 5. Pega os valores dos campos de e-mail e senha
-        const email = document.getElementById('email').value;
-        const senha = document.getElementById('senha').value;
-        
-        // 6. Pega o elemento para mostrar mensagens de erro
+        // 5. Pega o elemento para mostrar mensagens de erro
         const mensagemErro = document.getElementById('mensagem-erro');
+        const botaoCadastro = document.getElementById('botao-cadastro');
         
+        // Desativa o botão para prevenir múltiplos cliques
+        botaoCadastro.disabled = true;
+        botaoCadastro.innerText = "Processando...";
+        mensagemErro.innerText = ""; // Limpa erros antigos
+
+        // 6. Pega os valores dos campos de e-mail e senha
+        const email = document.getElementById('email').value;
+        const senha = document.getElementById('senha').value; 
+        const confirmarSenha = document.getElementById('senha-confirmar').value;
+        const cpf = document.getElementById('cpf').value.replace(/\D/g, ''); // Apenas números
+        const rua = document.getElementById('rua').value;
+        const termos = document.getElementById('termos').checked;       
+
+        // 1. Validação do E-mail (Firebase já faz, mas é bom ter)
+        if (!email.includes('@') || !email.includes('.')) {
+            mensagemErro.innerText = "O formato do e-mail é inválido.";
+            botaoCadastro.disabled = false;
+            botaoCadastro.innerText = "Finalizar Cadastro";
+            return; // Para a execução
+        }
+        
+        // 2. Validação da Senha (Força + Confirmação)
+        if (senha.length < 8) {
+            mensagemErro.innerText = "A senha deve ter no mínimo 8 caracteres.";
+            botaoCadastro.disabled = false;
+            botaoCadastro.innerText = "Finalizar Cadastro";
+            return;
+        }
+        if (senha !== confirmarSenha) {
+            mensagemErro.innerText = "As senhas não conferem. Tente novamente.";
+            botaoCadastro.disabled = false;
+            botaoCadastro.innerText = "Finalizar Cadastro";
+            return;
+        }
+
+        // 3. Validação do CPF (apenas se tem 11 números)
+        if (cpf.length !== 11) {
+            mensagemErro.innerText = "O CPF deve conter 11 números.";
+            botaoCadastro.disabled = false;
+            botaoCadastro.innerText = "Finalizar Cadastro";
+            return;
+        }
+        
+        // 4. Validação do Endereço (Vê se o ViaCEP preencheu)
+        if (rua === "" || rua === "Buscando...") {
+            mensagemErro.innerText = "Por favor, preencha um CEP válido e aguarde o endereço ser preenchido.";
+            botaoCadastro.disabled = false;
+            botaoCadastro.innerText = "Finalizar Cadastro";
+            return;
+        }
+        
+        // 5. Validação dos Termos
+        if (!termos) {
+            mensagemErro.innerText = "Você precisa aceitar os Termos de Uso e a Política de Privacidade.";
+            botaoCadastro.disabled = false;
+            botaoCadastro.innerText = "Finalizar Cadastro";
+            return;
+        }
+
+        // --- FIM DA VALIDAÇÃO ---
+
         console.log('Tentando cadastrar:', email); // Para depuração
 
         // 7. Chama a função do FIREBASE para CRIAR um usuário
@@ -62,24 +120,29 @@ if (formCadastro) {
                         // Erro ao enviar o e-mail
                         console.error('Erro ao enviar e-mail de verificação:', error);
                         mensagemErro.innerText = 'Conta criada, mas falhamos ao enviar o e-mail de verificação.';
+                        botaoCadastro.disabled = false;
+                        botaoCadastro.innerText = "Finalizar Cadastro";
                     });
 
             })
             .catch((error) => {
                 // (Código de erro do cadastro - sem alteração)
-// ... (código de erro existente)
+                // ... (código de erro existente)
                 console.error('Erro no cadastro:', error.code, error.message);
                 
                 // **ATUALIZAÇÃO AQUI**
                 if (error.code === 'auth/weak-password') {
-                    mensagemErro.innerText = 'A senha é muito fraca. (Mínimo 6 caracteres)';
+                    mensagemErro.innerText = 'A senha é muito fraca. (Mínimo 8 caracteres)';
                 } else if (error.code === 'auth/email-already-in-use') {
                     mensagemErro.innerText = 'Este e-mail já está em uso.';
-                } else if (error.code === 'auth/invalid-email') { // <-- ADICIONE ESTA LINHA
-                    mensagemErro.innerText = 'O formato do e-mail é inválido.'; // <-- E ESTA
+                } else if (error.code === 'auth/invalid-email') { 
+                    mensagemErro.innerText = 'O formato do e-mail é inválido.';
                 } else {
                     mensagemErro.innerText = 'Ocorreu um erro ao criar a conta.';
                 }
+
+                botaoCadastro.disabled = false;
+                botaoCadastro.innerText = "Finalizar Cadastro";
             });
     });
 }
@@ -132,7 +195,7 @@ if (formLogin) {
                 const mensagemErro = document.getElementById('mensagem-erro-login');
 
                 // Mostra erros amigáveis para o usuário
-                if (error.code === 'auth/invalid-login-credentials') {
+                if (error.code === 'auth/invalid-login-credentials' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
                     mensagemErro.innerText = 'E-mail ou senha incorretos. Tente novamente.';
                 } else {
                     mensagemErro.innerText = 'Ocorreu um erro ao fazer login.';
@@ -147,66 +210,58 @@ if (formLogin) {
 // Ela é chamada AUTOMATICAMENTE toda vez que a página carrega.
 firebase.auth().onAuthStateChanged((user) => {
 
-    // 1. Tenta encontrar os elementos da página de dashboard
-    const loadingSpinner = document.getElementById('loading-spinner');
-    const dashboardContent = document.getElementById('dashboard-content');
-    const welcomeMessage = document.getElementById('welcome-message');
-    const botaoLogout = document.getElementById('logout');
-
-    // 2. Estamos na página de dashboard?
-    // (Verificamos se o 'loadingSpinner' existe)
-    if (loadingSpinner) {
-
+    // Verifica se estamos na página dashboard.html
+    const isDashboardPage = window.location.pathname.endsWith('dashboard.html');
+    
+    if (isDashboardPage) {
+        // Estamos no dashboard, precisamos proteger
+        const loadingSpinner = document.getElementById('loading-spinner');
+        const dashboardContent = document.getElementById('dashboard-content');
+        
         if (user) {
-            // --- USUÁRIO ESTÁ LOGADO (MAS ESTÁ VERIFICADO?)---
-
-            // **A NOVA VERIFICAÇÃO IMPORTANTE ESTÁ AQUI**
+            // --- USUÁRIO ESTÁ LOGADO ---
+            
+            // 1. VERIFICAR SE O E-MAIL FOI VALIDADO
             if (user.emailVerified) {
-                // --- SIM, USUÁRIO ESTÁ VERIFICADO ---
-                console.log('Usuário logado E verificado:', user.email);
-
-                // Preenche o e-mail do usuário na mensagem de boas-vindas
-                welcomeMessage.innerText = `Olá, ${user.email}!`;
-
-                // Esconde o "Carregando"
-                loadingSpinner.style.display = 'none';
+                // Sucesso! O usuário está logado E verificado
+                console.log('Usuário logado e verificado:', user.email);
                 
-                // Mostra o conteúdo principal do dashboard
-                dashboardContent.style.display = 'block';
+                // Preenche a mensagem de boas-vindas
+                const welcomeMessage = document.getElementById('welcome-message');
+                if (welcomeMessage) {
+                    welcomeMessage.innerText = `Olá, bem-vindo(a) de volta ${user.email}!`;
+                }
 
-                // Adiciona a função de "Sair" (Logout) ao botão
-                botaoLogout.addEventListener('click', () => {
-                    firebase.auth().signOut()
-                        .then(() => {
-// ... (código de logout existente)
-                            alert('Você saiu. Redirecionando para o login...');
+                // Esconde o "carregando" e mostra o conteúdo
+                if (loadingSpinner) loadingSpinner.style.display = 'none';
+                if (dashboardContent) dashboardContent.style.display = 'block';
+
+                // Adiciona o evento ao botão de logout
+                const botaoLogout = document.getElementById('logout');
+                if (botaoLogout) {
+                    botaoLogout.addEventListener('click', () => {
+                        firebase.auth().signOut().then(() => {
+                            console.log('Usuário deslogado.');
+                            alert('Você foi desconectado.');
                             window.location.href = 'login.html';
-                        })
-                        .catch((error) => {
-                            console.error('Erro ao fazer logout:', error);
+                        }).catch((error) => {
+                            console.error('Erro ao deslogar:', error);
                         });
-                });
-
-            } else {
-                // --- NÃO, USUÁRIO NÃO ESTÁ VERIFICADO ---
-                console.log('Usuário logado, MAS NÃO VERIFICADO.');
+                    });
+                }
                 
-                // Desloga o usuário (opcional, mas recomendado)
-                firebase.auth().signOut();
-
-                // CHUTA O USUÁRIO para a página de login
-                alert('Seu e-mail ainda não foi verificado. Por favor, verifique sua caixa de entrada e faça o login novamente.');
+            } else {
+                // --- USUÁRIO LOGADO, MAS E-MAIL NÃO VERIFICADO ---
+                console.log('Usuário logado, mas e-mail não verificado.');
+                firebase.auth().signOut(); // Desloga o usuário
+                alert('Sua conta foi criada, mas seu e-mail ainda não foi verificado. Por favor, verifique seu e-mail e tente fazer login novamente.');
                 window.location.href = 'login.html';
             }
-        } else {
-            // --- USUÁRIO NÃO ESTÁ LOGADO ---
-            console.log('Usuário não logado. Redirecionando...');
             
-            // 1. Esconde o "Carregando" (opcional)
-            loadingSpinner.style.display = 'none';
-
-            // 2. CHUTA O USUÁRIO para a página de login
-            alert('Você precisa estar logado para ver esta página.');
+        } else {
+            // --- NINGUÉM ESTÁ LOGADO ---
+            console.log('Nenhum usuário logado. Redirecionando para login.');
+            alert('Você precisa estar logado para acessar esta página.');
             window.location.href = 'login.html';
         }
     }
