@@ -51,7 +51,7 @@ if (formCadastro) {
                 
                 // IMPORTANTE: Redireciona o usuário para a página de "logado"
                 // (Mude 'dashboard.html' para sua página de perfil ou login)
-                window.location.href = 'index.html'; // Ou 'login.html'
+                window.location.href = 'dashboard.html'; // Ou 'login.html'
                 
             })
             .catch((error) => {
@@ -104,10 +104,10 @@ if (formLogin) {
                 mensagemErro.innerText = "";
                 
                 // Avisa o usuário e redireciona
-                alert('Login efetuado com sucesso! Bem-vindo(a) de volta.');
+                alert('Login efetuado com sucesso!');
                 
                 // Redireciona o usuário para a página principal
-                window.location.href = 'index.html'; 
+                window.location.href = 'dashboard.html'; 
                 
             })
             .catch((error) => {
