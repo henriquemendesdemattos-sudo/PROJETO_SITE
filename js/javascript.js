@@ -70,12 +70,15 @@ if (formCadastro) {
 // ... (código de erro existente)
                 console.error('Erro no cadastro:', error.code, error.message);
                 
+                // **ATUALIZAÇÃO AQUI**
                 if (error.code === 'auth/weak-password') {
-// ... (código de erro existente)
+                    mensagemErro.innerText = 'A senha é muito fraca. (Mínimo 6 caracteres)';
                 } else if (error.code === 'auth/email-already-in-use') {
-// ... (código de erro existente)
+                    mensagemErro.innerText = 'Este e-mail já está em uso.';
+                } else if (error.code === 'auth/invalid-email') { // <-- ADICIONE ESTA LINHA
+                    mensagemErro.innerText = 'O formato do e-mail é inválido.'; // <-- E ESTA
                 } else {
-// ... (código de erro existente)
+                    mensagemErro.innerText = 'Ocorreu um erro ao criar a conta.';
                 }
             });
     });
