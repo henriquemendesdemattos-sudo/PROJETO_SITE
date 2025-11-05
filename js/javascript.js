@@ -127,6 +127,60 @@ if (formLogin) {
     });
 }
 
+// --- PÁGINA DASHBOARD (O "GUARDA" E O LOGOUT) ---
+// (ADICIONE ESTE NOVO BLOCO DE CÓDIGO)
+
+// Esta é a função "Gatekeeper" (Porteiro) do Firebase.
+// Ela é chamada AUTOMATICAMENTE toda vez que a página carrega.
+firebase.auth().onAuthStateChanged((user) => {
+
+    // 1. Tenta encontrar os elementos da página de dashboard
+    const loadingSpinner = document.getElementById('loading-spinner');
+    const dashboardContent = document.getElementById('dashboard-content');
+    const botaoLogout = document.getElementById('logout');
+
+    // 2. Estamos na página de dashboard?
+    // (Verificamos se o 'loadingSpinner' existe)
+    if (loadingSpinner) {
+
+        if (user) {
+            // --- USUÁRIO ESTÁ LOGADO ---
+            console.log('Usuário logado:', user.email);
+
+            // 1. Esconde o "Carregando"
+            loadingSpinner.style.display = 'none';
+            
+            // 2. Mostra o conteúdo principal do dashboard
+            dashboardContent.style.display = 'block';
+
+            // 3. Adiciona a função de "Sair" (Logout) ao botão
+            botaoLogout.addEventListener('click', () => {
+                firebase.auth().signOut()
+                    .then(() => {
+                        // Logout bem-sucedido
+                        alert('Você saiu. Redirecionando para o login...');
+                        window.location.href = 'login.html';
+                    })
+                    .catch((error) => {
+                        console.error('Erro ao fazer logout:', error);
+                    });
+            });
+
+        } else {
+            // --- USUÁRIO NÃO ESTÁ LOGADO ---
+            console.log('Usuário não logado. Redirecionando...');
+            
+            // 1. Esconde o "Carregando" (opcional)
+            loadingSpinner.style.display = 'none';
+
+            // 2. CHUTA O USUÁRIO para a página de login
+            alert('Você precisa estar logado para ver esta página.');
+            window.location.href = 'login.html';
+        }
+    }
+    // Se não encontrou os elementos, não faz nada (estamos em outra página)
+});
+
     // Função reutilizável para simular o envio de um formulário
     function simulateFormSubmit(formId, messageText) {
         const form = document.getElementById(formId);

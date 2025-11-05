@@ -55,3 +55,9 @@ Muda a cor dos ícones para a cor da nossa marca ao passar o mouse.
     color: var(--basicbank-primary-color);
 }
 
+/* Div de Carregamento (Importante) */
+#loading-spinner {
+    text-align: center;
+    font-size: 20px;
+    padding: 50px;
+}
