@@ -26,6 +26,11 @@ document.addEventListener('DOMContentLoaded', (event) => {
         }
 
         if (cep.length === 8) {
+
+            // NOVO: Desabilitar o botão ANTES de buscar
+            botaoCadastro.disabled = true;
+            botaoCadastro.innerText = "Buscando CEP...";
+
             // Mostra um "carregando" enquanto busca
             document.getElementById('rua').value = 'Buscando...';
             document.getElementById('bairro').value = 'Buscando...';
@@ -56,6 +61,10 @@ document.addEventListener('DOMContentLoaded', (event) => {
             console.error('Erro ao buscar CEP:', error);
             limparCampos();
             mensagemErro.innerText = "Erro ao buscar o CEP. Tente novamente mais tarde.";
+        } finally {
+                // NOVO: Reabilitar o botão DEPOIS que a busca (sucesso ou falha) terminar
+                botaoCadastro.disabled = false;
+                botaoCadastro.innerText = "Finalizar Cadastro";
         }
         }
 
