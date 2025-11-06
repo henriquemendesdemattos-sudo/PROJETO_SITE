@@ -36,7 +36,7 @@ if (formCadastro) {
             botaoCadastro.disabled = true;                      
             botaoCadastro.innerText = "Processando...";
         }
-        mensagemErro.innerText = ""; // Limpa erros antigos
+        mensagemErro.innerText = "Erro ao cadastrar"; // Limpa erros antigos
 
         // 6. Pega os valores dos campos de e-mail e senha
         const email = document.getElementById('email').value;
