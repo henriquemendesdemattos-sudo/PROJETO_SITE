@@ -32,10 +32,11 @@ if (formCadastro) {
         const mensagemErro = document.getElementById('mensagem-erro');
         const botaoCadastro = document.getElementById('botao-cadastro');
         
-        // Desativa o botão para prevenir múltiplos cliques
-        botaoCadastro.disabled = true;
-        botaoCadastro.innerText = "Processando...";
-        mensagemErro.innerText = ""; // Limpa erros antigos
+        if (botaoCadastro) {
+            botaoCadastro.disabled = true;                      
+            botaoCadastro.innerText = "Processando...";
+        }
+        mensagemErro.innerText = "Erro ao cadastrar"; // Limpa erros antigos
 
         // 6. Pega os valores dos campos de e-mail e senha
         const email = document.getElementById('email').value;
@@ -48,46 +49,58 @@ if (formCadastro) {
         // 1. Validação do E-mail (Firebase já faz, mas é bom ter)
         if (!email.includes('@') || !email.includes('.')) {
             mensagemErro.innerText = "O formato do e-mail é inválido.";
-            botaoCadastro.disabled = false;
-            botaoCadastro.innerText = "Finalizar Cadastro";
+            if (botaoCadastro) {
+                botaoCadastro.disabled = false;
+                botaoCadastro.innerText = "Finalizar Cadastro";
+            }
             return; // Para a execução
         }
         
         // 2. Validação da Senha (Força + Confirmação)
         if (senha.length < 8) {
             mensagemErro.innerText = "A senha deve ter no mínimo 8 caracteres.";
-            botaoCadastro.disabled = false;
-            botaoCadastro.innerText = "Finalizar Cadastro";
+            if (botaoCadastro) {
+                botaoCadastro.disabled = false;
+                botaoCadastro.innerText = "Finalizar Cadastro";
+            }
             return;
         }
         if (senha !== confirmarSenha) {
             mensagemErro.innerText = "As senhas não conferem. Tente novamente.";
-            botaoCadastro.disabled = false;
-            botaoCadastro.innerText = "Finalizar Cadastro";
+            if (botaoCadastro) {
+                botaoCadastro.disabled = false;
+                botaoCadastro.innerText = "Finalizar Cadastro";
+            }
             return;
         }
 
         // 3. Validação do CPF (apenas se tem 11 números)
         if (cpf.length !== 11) {
             mensagemErro.innerText = "O CPF deve conter 11 números.";
-            botaoCadastro.disabled = false;
-            botaoCadastro.innerText = "Finalizar Cadastro";
+            if (botaoCadastro) {
+                botaoCadastro.disabled = false;
+                botaoCadastro.innerText = "Finalizar Cadastro";
+            }
             return;
         }
         
         // 4. Validação do Endereço (Vê se o ViaCEP preencheu)
         if (rua === "" || rua === "Buscando...") {
             mensagemErro.innerText = "Por favor, preencha um CEP válido e aguarde o endereço ser preenchido.";
-            botaoCadastro.disabled = false;
-            botaoCadastro.innerText = "Finalizar Cadastro";
+            if (botaoCadastro) {
+                botaoCadastro.disabled = false;
+                botaoCadastro.innerText = "Finalizar Cadastro";
+            }
             return;
         }
         
         // 5. Validação dos Termos
         if (!termos) {
             mensagemErro.innerText = "Você precisa aceitar os Termos de Uso e a Política de Privacidade.";
-            botaoCadastro.disabled = false;
-            botaoCadastro.innerText = "Finalizar Cadastro";
+            if (botaoCadastro) {
+                botaoCadastro.disabled = false;
+                botaoCadastro.innerText = "Finalizar Cadastro";
+            }
             return;
         }
 
@@ -120,8 +133,10 @@ if (formCadastro) {
                         // Erro ao enviar o e-mail
                         console.error('Erro ao enviar e-mail de verificação:', error);
                         mensagemErro.innerText = 'Conta criada, mas falhamos ao enviar o e-mail de verificação.';
-                        botaoCadastro.disabled = false;
-                        botaoCadastro.innerText = "Finalizar Cadastro";
+                        if (botaoCadastro) {
+                            botaoCadastro.disabled = false;
+                            botaoCadastro.innerText = "Finalizar Cadastro";
+                        }
                     });
 
             })
@@ -141,8 +156,10 @@ if (formCadastro) {
                     mensagemErro.innerText = 'Ocorreu um erro ao criar a conta.';
                 }
 
+                if (botaoCadastro) {
                 botaoCadastro.disabled = false;
                 botaoCadastro.innerText = "Finalizar Cadastro";
+                }
             });
     });
 }
@@ -268,6 +285,8 @@ firebase.auth().onAuthStateChanged((user) => {
     
 });
 
+    // --- SIMULAÇÃO DE ENVIO DE FORMULÁRIO DE CONTATO ---
+
     // Função reutilizável para simular o envio de um formulário
     function simulateFormSubmit(formId, messageText) {
         const form = document.getElementById(formId);
@@ -304,16 +323,10 @@ firebase.auth().onAuthStateChanged((user) => {
         }
     }
 
-    // Executa a simulação para a página de Contato
+    // Executa a simulação APENAS para a página de Contato
     simulateFormSubmit(
         'contactForm', 
         'Mensagem enviada com sucesso! Entraremos em contato em breve.'
-    );
-
-    // Executa a simulação para a página de Cadastro
-    simulateFormSubmit(
-        'cadastroForm', 
-        'Cadastro realizado com sucesso! Em breve, você receberá um e-mail com os próximos passos.'
     );
 
 });
