@@ -84,7 +84,7 @@
                                 </div>
                                 <div class="col-md-8">
                                     <label for="rua" class="form-label">Endereço (Rua / Av.)</label>
-                                    <input type="text" class="form-control" id="rua" readonly>
+                                    <input type="text" class="form-control" id="rua" readonly required>
                                 </div>
                                 <div class="col-md-4">
                                     <label for="numero" class="form-label">Número</label>
@@ -96,15 +96,15 @@
                                 </div>
                                 <div class="col-md-4">
                                     <label for="bairro" class="form-label">Bairro</label>
-                                    <input type="text" class="form-control" id="bairro" readonly>
+                                    <input type="text" class="form-control" id="bairro" readonly required>
                                 </div>
                                 <div class="col-md-5">
                                     <label for="cidade" class="form-label">Cidade</label>
-                                    <input type="text" class="form-control" id="cidade" readonly>
+                                    <input type="text" class="form-control" id="cidade" readonly required>
                                 </div>
                                 <div class="col-md-3">
                                     <label for="estado" class="form-label">Estado</label>
-                                    <input type="text" class="form-control" id="estado" readonly>
+                                    <input type="text" class="form-control" id="estado" readonly required>
                                 </div>
                             </div>
 
@@ -117,7 +117,7 @@
                                 </label>
                             </div>
                             
-                            <button type="submit" class="btn btn-primary btn-lg w-100">Finalizar Cadastro</button>
+                            <button type="submit" class="btn btn-primary btn-lg w-100" id="botao-cadastro">Finalizar Cadastro</button>
                         </form>
                         <!-- A mensagem de sucesso será inserida aqui pelo JavaScript -->
                     </div>
@@ -143,7 +143,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" xintegrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     
     <!-- Link para o script do ViaCEP -->
-    <script src="js/viacep.js"></script>
+    <script src="js/viacep3.js"></script>
 
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
 
