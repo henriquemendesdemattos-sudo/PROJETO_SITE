@@ -36,7 +36,14 @@ if (formCadastro) {
             botaoCadastro.disabled = true;                      
             botaoCadastro.innerText = "Processando...";
         }
-        mensagemErro.innerText = "Erro ao cadastrar"; // Limpa erros antigos
+        
+        // --- ALTERAÇÃO AQUI ---
+        // Só limpa a mensagem de erro se ELA NÃO FOR um erro de CEP
+        const erroAtual = mensagemErro.innerText;
+        if (!erroAtual.includes("CEP")) {
+             mensagemErro.innerText = ""; // Limpa erros antigos (que não sejam de CEP)
+        }
+        // --- FIM DA ALTERAÇÃO ---
 
         // 6. Pega os valores dos campos de e-mail e senha
         const email = document.getElementById('email').value;
@@ -86,7 +93,15 @@ if (formCadastro) {
         
         // 4. Validação do Endereço (Vê se o ViaCEP preencheu)
         if (rua === "" || rua === "Buscando...") {
-            mensagemErro.innerText = "Por favor, preencha um CEP válido e aguarde o endereço ser preenchido.";
+            
+            // --- ALTERAÇÃO AQUI ---
+            // Se a rua está vazia, verifica se já existe um erro de CEP.
+            // Se não houver, exibe o erro padrão.
+            if (!mensagemErro.innerText.includes("CEP")) {
+                 mensagemErro.innerText = "Por favor, preencha um CEP válido e aguarde o endereço ser preenchido.";
+            }
+            // --- FIM DA ALTERAÇÃO ---
+            
             if (botaoCadastro) {
                 botaoCadastro.disabled = false;
                 botaoCadastro.innerText = "Finalizar Cadastro";
