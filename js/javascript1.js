@@ -285,6 +285,8 @@ firebase.auth().onAuthStateChanged((user) => {
     
 });
 
+    // --- SIMULAÇÃO DE ENVIO DE FORMULÁRIO DE CONTATO ---
+
     // Função reutilizável para simular o envio de um formulário
     function simulateFormSubmit(formId, messageText) {
         const form = document.getElementById(formId);
@@ -321,16 +323,10 @@ firebase.auth().onAuthStateChanged((user) => {
         }
     }
 
-    // Executa a simulação para a página de Contato
+    // Executa a simulação APENAS para a página de Contato
     simulateFormSubmit(
         'contactForm', 
         'Mensagem enviada com sucesso! Entraremos em contato em breve.'
-    );
-
-    // Executa a simulação para a página de Cadastro
-    simulateFormSubmit(
-        'cadastroForm', 
-        'Cadastro realizado com sucesso! Em breve, você receberá um e-mail com os próximos passos.'
     );
 
 });

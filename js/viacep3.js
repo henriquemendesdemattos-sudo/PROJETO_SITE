@@ -2,26 +2,23 @@
 document.addEventListener('DOMContentLoaded', (event) => {
 
     const cepInput = document.getElementById('cep');
+    const mensagemErro = document.getElementById('mensagem-erro');
 
-    // Esta função é chamada quando o usuário sai do campo CEP
-    const buscarCep = async () => {
-        // Não faz nada se o campo CEP não estiver na página
-        if (!cepInput) return; 
-
-        const cep = cepInput.value.replace(/\D/g, ''); // Remove tudo que não é número
-        const mensagemErro = document.getElementById('mensagem-erro');
-
-        // Certifica-se de que mensagemErro existe antes de usá-lo
-        if (!mensagemErro) return;
-    
-        //Limpar os campos de endereço
-        const limparCampos = () => {
+    // Função para limpar os campos de endereço
+    const limparCampos = () => {
         document.getElementById('rua').value = '';
         document.getElementById('bairro').value = '';
         document.getElementById('cidade').value = '';
         document.getElementById('estado').value = '';
         document.getElementById('complemento').value = '';
     }
+
+    // Esta função é chamada quando o usuário sai do campo CEP
+    const buscarCep = async () => {
+        // Não faz nada se o campo CEP não estiver na página
+        if (!cepInput || !mensagemErro) return; 
+
+        const cep = cepInput.value.replace(/\D/g, ''); // Remove tudo que não é número
 
         if (cep.length !== 8) {
             limparCampos();
@@ -47,23 +44,23 @@ document.addEventListener('DOMContentLoaded', (event) => {
             mensagemErro.innerText = "CEP não encontrado. Verifique e tente novamente.";
         } else {
             // CEP encontrado! Preenche os campos
-            document.getElementById('rua-cadastro').value = data.logradouro;
-            document.getElementById('bairro-cadastro').value = data.bairro;
-            document.getElementById('cidade-cadastro').value = data.localidade;
-            document.getElementById('estado-cadastro').value = data.uf;
+            document.getElementById('rua').value = data.logradouro;
+            document.getElementById('bairro').value = data.bairro;
+            document.getElementById('cidade').value = data.localidade;
+            document.getElementById('estado').value = data.uf;
             
             // Foca no campo "Número"
-            document.getElementById('numero-cadastro').focus();
+            document.getElementById('numero').focus();
         }
     } catch (error) {
         console.error('Erro ao buscar CEP:', error);
         limparCampos();
         mensagemErro.innerText = "Erro ao buscar o CEP. Tente novamente mais tarde.";
-    }
+    };
 
     // Adiciona o "ouvinte" ao campo CEP (quando o usuário clica fora dele)
     if (cepInput) {
         cepInput.addEventListener('blur', buscarCep);
     }
-    };
+    }
 });
