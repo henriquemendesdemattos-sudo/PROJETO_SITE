@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Define a URL base da sua API
 
-    const API_URL = 'basicbank-backend-ebgqbnfkh4eteqgf.chilecentral-01.azurewebsites.net';
+    const API_URL = 'https://basicbank-backend-ebgqbnfkh4eteqgf.chilecentral-01.azurewebsites.net';
 
     // --- PÁGINA DE CADASTRO ---
     const formCadastro = document.getElementById('cadastroForm');
