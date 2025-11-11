@@ -229,7 +229,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const loadingSpinner = document.getElementById('loading-spinner');
         const dashboardContent = document.getElementById('dashboard-content');
 
-        if (token && displayName) {
+        if (token && userName) {
             // Usuário está "logado" (tem um token)
             console.log('Usuário logado:', userName);
 
