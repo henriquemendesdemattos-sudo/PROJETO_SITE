@@ -1,300 +1,278 @@
-// INICIALIZAÇÃO DO FIREBASE
-const firebaseConfig = {
-    apiKey: "AIzaSyD1tb1lQVAhHd-cxagQf5wW5ntPoCBuBNs",
-    authDomain: "basicbank-72119.firebaseapp.com",
-    projectId: "basicbank-72119",
-    storageBucket: "basicbank-72119.firebasestorage.app",
-    messagingSenderId: "659142629021",
-    appId: "1:659142629021:web:1f9d4a9ff0c5c9220ae674"
-};
-// Initialize Firebase
-firebase.initializeApp(firebaseConfig);
+document.addEventListener('DOMContentLoaded', function () {
 
-// FIM DA INICIALIZAÇÃO
+    // Define a URL base da sua API
 
-document.addEventListener('DOMContentLoaded', function() {
-    
+    const API_URL = 'basicbank-backend-ebgqbnfkh4eteqgf.chilecentral-01.azurewebsites.net';
+
     // --- PÁGINA DE CADASTRO ---
+    const formCadastro = document.getElementById('cadastroForm');
 
-// 1. Tenta encontrar o formulário de cadastro na página
-const formCadastro = document.getElementById('cadastroForm');
+    if (formCadastro) {
+        const mensagemErro = document.getElementById('mensagem-erro');
+        const botaoCadastro = document.getElementById('botao-cadastro');
+        const cepInput = document.getElementById('cep');
 
-// 2. Verifica se o formulário existe na página atual
-if (formCadastro) {
-    
-    // Pega os elementos do formulário UMA VEZ
-    const mensagemErro = document.getElementById('mensagem-erro');
-    const botaoCadastro = document.getElementById('botao-cadastro');
-    const cepInput = document.getElementById('cep');
-
-    // --- LÓGICA DO VIACEP (MOVIDA PARA CÁ) ---
-
-    // Função para limpar os campos de endereço
-    const limparCamposEndereco = () => {
-        document.getElementById('rua').value = '';
-        document.getElementById('bairro').value = '';
-        document.getElementById('cidade').value = '';
-        document.getElementById('estado').value = '';
-    }
-
-    // Esta função é chamada quando o usuário sai do campo CEP
-    const buscarCep = async () => {
-        if (!cepInput || !mensagemErro || !botaoCadastro) return; 
-
-        const cep = cepInput.value.replace(/\D/g, ''); // Remove tudo que não é número
-
-        if (cep.length === 0) {
-            limparCamposEndereco();
-            mensagemErro.innerText = ""; // Limpa erro de CEP se o campo estiver vazio
-            return;
+        // --- LÓGICA DO VIACEP ---
+        const limparCamposEndereco = () => {
+            document.getElementById('rua').value = '';
+            document.getElementById('bairro').value = '';
+            document.getElementById('cidade').value = '';
+            document.getElementById('estado').value = '';
         }
 
-        if (cep.length < 8) {
-            limparCamposEndereco();
-            mensagemErro.innerText = "Formato de CEP inválido (deve ter 8 números).";
-            return;
-        }
-
-        if (cep.length === 8) {
-            botaoCadastro.disabled = true;
-            botaoCadastro.innerText = "Buscando CEP...";
-
-            document.getElementById('rua').value = 'Buscando...';
-            document.getElementById('bairro').value = 'Buscando...';
-            document.getElementById('cidade').value = 'Buscando...';
-            document.getElementById('estado').value = 'Buscando...';
-            mensagemErro.innerText = "";
-        
-            try {
-                const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
-                const data = await response.json();
-
-                if (data.erro) {
-                    limparCamposEndereco();
-                    mensagemErro.innerText = "CEP não encontrado. Verifique e tente novamente.";
-                } else {
-                    document.getElementById('rua').value = data.logradouro;
-                    document.getElementById('bairro').value = data.bairro;
-                    document.getElementById('cidade').value = data.localidade;
-                    document.getElementById('estado').value = data.uf;
-                    document.getElementById('numero').focus(); // Foca no campo "Número"
-                }
-            } catch (error) {
-                console.error('Erro ao buscar CEP:', error);
+        const buscarCep = async () => {
+            if (!cepInput || !mensagemErro || !botaoCadastro) return;
+            const cep = cepInput.value.replace(/\D/g, '');
+            if (cep.length === 0) {
                 limparCamposEndereco();
-                mensagemErro.innerText = "Erro ao buscar o CEP. Tente novamente mais tarde.";
-            } finally {
-                // Reabilita o botão DEPOIS que a busca (sucesso ou falha) terminar
-                botaoCadastro.disabled = false;
-                botaoCadastro.innerText = "Finalizar Cadastro";
+                mensagemErro.innerText = "";
+                return;
             }
-        }
-    };
-
-    // Adiciona o "ouvinte" ao campo CEP (quando o usuário clica fora dele - 'blur')
-    if (cepInput) {
-        cepInput.addEventListener('blur', buscarCep); // Mudei de 'input' para 'blur'
-    }
-
-    // --- FIM DA LÓGICA DO VIACEP ---
-
-
-    // 3. Adiciona um "ouvinte" para quando o formulário for ENVIADO
-    formCadastro.addEventListener('submit', (evento) => {
-        
-        // 4. Previne que a página recarregue
-        evento.preventDefault();
-        
-        if (botaoCadastro) {
-            botaoCadastro.disabled = true;                      
-            botaoCadastro.innerText = "Processando...";
-        }
-
-        // Função auxiliar para mostrar erros e reativar o botão
-        const mostrarErro = (mensagem) => {
-            if (mensagemErro) {
-                mensagemErro.innerText = mensagem;
+            if (cep.length < 8) {
+                limparCamposEndereco();
+                mensagemErro.innerText = "Formato de CEP inválido (deve ter 8 números).";
+                return;
             }
-            if (botaoCadastro) {
-                botaoCadastro.disabled = false;
-                botaoCadastro.innerText = "Finalizar Cadastro";
+            if (cep.length === 8) {
+                botaoCadastro.disabled = true;
+                botaoCadastro.innerText = "Buscando CEP...";
+                document.getElementById('rua').value = 'Buscando...';
+                document.getElementById('bairro').value = 'Buscando...';
+                document.getElementById('cidade').value = 'Buscando...';
+                document.getElementById('estado').value = 'Buscando...';
+                mensagemErro.innerText = "";
+                try {
+                    const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+                    const data = await response.json();
+                    if (data.erro) {
+                        limparCamposEndereco();
+                        mensagemErro.innerText = "CEP não encontrado. Verifique e tente novamente.";
+                    } else {
+                        document.getElementById('rua').value = data.logradouro;
+                        document.getElementById('bairro').value = data.bairro;
+                        document.getElementById('cidade').value = data.localidade;
+                        document.getElementById('estado').value = data.uf;
+                        document.getElementById('numero').focus();
+                    }
+                } catch (error) {
+                    console.error('Erro ao buscar CEP:', error);
+                    limparCamposEndereco();
+                    mensagemErro.innerText = "Erro ao buscar o CEP. Tente novamente mais tarde.";
+                } finally {
+                    botaoCadastro.disabled = false;
+                    botaoCadastro.innerText = "Finalizar Cadastro";
+                }
             }
         };
-        
-        // Limpa erros antigos (exceto erros de CEP)
-        if (mensagemErro && !mensagemErro.innerText.includes("CEP")) {
-             mensagemErro.innerText = "";
-        }
 
-        // 6. Pega os valores
-        const email = document.getElementById('email').value;
-        const senha = document.getElementById('senha').value; 
-        const confirmarSenha = document.getElementById('senha-confirmar').value;
-        const cpf = document.getElementById('cpf').value.replace(/\D/g, '');
-        const rua = document.getElementById('rua').value;
-        const termos = document.getElementById('termos').checked;       
+        if (cepInput) {
+            cepInput.addEventListener('blur', buscarCep);
+        }
+        // --- FIM DA LÓGICA DO VIACEP ---
 
-        // 1. Validação do E-mail
-        if (!email.includes('@') || !email.includes('.')) {
-            mostrarErro("O formato do e-mail é inválido.");
-            return;
-        }
-        
-        // 2. Validação da Senha
-        if (senha.length < 8) {
-            mostrarErro("A senha deve ter no mínimo 8 caracteres.");
-            return;
-        }
-        if (senha !== confirmarSenha) {
-            mostrarErro("As senhas não conferem. Tente novamente.");
-            return;
-        }
+        // Event listener do formulário de cadastro
+        formCadastro.addEventListener('submit', async (evento) => {
+            evento.preventDefault();
 
-        // 3. Validação do CPF
-        if (cpf.length !== 11) {
-            mostrarErro("O CPF deve conter 11 números.");
-            return;
-        }
-        
-        // 4. Validação do Endereço
-        if (rua === "" || rua === "Buscando...") {
+            const mostrarErro = (mensagem) => {
+                if (mensagemErro) mensagemErro.innerText = mensagem;
+            };
+            
             if (mensagemErro && !mensagemErro.innerText.includes("CEP")) {
-                 mostrarErro("Por favor, preencha um CEP válido e aguarde o endereço ser preenchido.");
+                mensagemErro.innerText = "";
             }
-            // Re-ativa o botão mesmo se o erro do CEP já estiver lá
-            if (botaoCadastro) {
-                botaoCadastro.disabled = false;
-                botaoCadastro.innerText = "Finalizar Cadastro";
+
+            const nome = document.getElementById('nome').value;
+            const email = document.getElementById('email').value;
+            const senha = document.getElementById('senha').value;
+            const confirmarSenha = document.getElementById('senha-confirmar').value;
+            const cpf = document.getElementById('cpf').value.replace(/\D/g, '');
+            const rua = document.getElementById('rua').value;
+            const termos = document.getElementById('termos').checked;
+
+            // Validações
+            if (!nome) {
+                mostrarErro("O campo Nome é obrigatório.");
+                return;
             }
-            return;
-        }
-        
-        // 5. Validação dos Termos
-        if (!termos) {
-            mostrarErro("Você precisa aceitar os Termos de Uso e a Política de Privacidade.");
-            return;
-        }
-
-        // --- FIM DA VALIDAÇÃO ---
-
-        console.log('Tentando cadastrar:', email);
-
-        // 7. Chama a função do FIREBASE para CRIAR um usuário
-        firebase.auth().createUserWithEmailAndPassword(email, senha)
-            .then((userCredential) => {
-                const user = userCredential.user;
-                
-                user.sendEmailVerification()
-                    .then(() => {
-                        console.log('E-mail de verificação enviado para', user.email);
-                        alert('Conta criada com sucesso! Enviamos um link de verificação para o seu e-mail. Por favor, verifique sua caixa de entrada e faça o login.');
-                        window.location.href = 'login.html';
-                    })
-                    .catch((error) => {
-                        console.error('Erro ao enviar e-mail de verificação:', error);
-                        mostrarErro('Conta criada, mas falhamos ao enviar o e-mail de verificação.');
-                    });
-
-            })
-            .catch((error) => {
-                console.error('Erro no cadastro:', error.code, error.message);
-                if (error.code === 'auth/weak-password') {
-                    mostrarErro('A senha é muito fraca. (Mínimo 8 caracteres)');
-                } else if (error.code === 'auth/email-already-in-use') {
-                    mostrarErro('Este e-mail já está em uso.');
-                } else if (error.code === 'auth/invalid-email') { 
-                    mostrarErro('O formato do e-mail é inválido.');
-                } else {
-                    mostrarErro('Ocorreu um erro ao criar a conta.');
+            if (!email.includes('@') || !email.includes('.com')) {
+                mostrarErro("O formato do e-mail é inválido.");
+                return;
+            }
+            if (senha.length < 8) {
+                mostrarErro("A senha deve ter no mínimo 8 caracteres.");
+                return;
+            }
+            if (senha !== confirmarSenha) {
+                mostrarErro("As senhas não conferem. Tente novamente.");
+                return;
+            }
+            if (cpf.length !== 11) {
+                mostrarErro("O CPF deve conter 11 números.");
+                return;
+            }
+            if (rua === "" || rua === "Buscando...") {
+                if (mensagemErro && !mensagemErro.innerText.includes("CEP")) {
+                    mostrarErro("Por favor, preencha um CEP válido e aguarde o endereço ser preenchido.");
                 }
-            });
-    });
-}
+                return;
+            }
+            if (!termos) {
+                mostrarErro("Você precisa aceitar os Termos de Uso e a Política de Privacidade.");
+                return;
+            }
+            // --- FIM DA VALIDAÇÃO ---
+
+            // --- LÓGICA DE CADASTRO ---
+
+            // Adiciona a chamada FETCH para sua nova API
+            try {
+                const response = await fetch(`${API_URL}/register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        nome: nome,
+                        email: email,
+                        senha: senha,
+                        cpf: cpf
+                        // NOTA: Você pode enviar mais dados (nome, endereço) se quiser salvá-los no banco
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    // Sucesso!
+                    console.log('Cadastro bem-sucedido:', data.message);
+
+                    alert('Conta criada com sucesso! Você já pode fazer o login.');
+                    window.location.href = 'login.html';
+                } else {
+                    // Erro vindo do servidor (ex: "E-mail já existe")
+                    mostrarErro(data.message || 'Ocorreu um erro ao criar a conta.');
+                }
+
+            } catch (error) {
+                console.error('Erro de rede no cadastro:', error);
+                mostrarErro('Não foi possível conectar ao servidor. Tente novamente mais tarde.');
+            }
+            // --- FIM DA LÓGICA DE CADASTRO ---
+        });
+    }
 
     // --- PÁGINA DE LOGIN ---
-const formLogin = document.getElementById('loginForm');
-if (formLogin) {
-    formLogin.addEventListener('submit', (evento) => {
-        evento.preventDefault();
-        const email = document.getElementById('email-login').value;
-        const senha = document.getElementById('senha-login').value;
-        const mensagemErro = document.getElementById('mensagem-erro-login');
+    const formLogin = document.getElementById('loginForm');
+    if (formLogin) {
+        formLogin.addEventListener('submit', async (evento) => {
+            evento.preventDefault();
+            const email = document.getElementById('email-login').value;
+            const senha = document.getElementById('senha-login').value;
+            const mensagemErroLogin = document.getElementById('mensagem-erro-login');
 
-        console.log('Tentando logar:', email);
+            console.log('Tentando logar:', email);
 
-        firebase.auth().signInWithEmailAndPassword(email, senha)
-            .then((userCredential) => {
-                console.log('Login bem-sucedido!', userCredential.user);
-                if (mensagemErro) mensagemErro.innerText = "";
-                alert('Login efetuado com sucesso!');
-                window.location.href = 'dashboard.html'; 
-            })
-            .catch((error) => {
-                console.error('Erro no login:', error.code, error.message);
-                const mensagemErroLogin = document.getElementById('mensagem-erro-login');
-                if (mensagemErroLogin) {
-                    if (error.code === 'auth/invalid-login-credentials' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
-                        mensagemErroLogin.innerText = 'E-mail ou senha incorretos. Tente novamente.';
-                    } else {
-                        mensagemErroLogin.innerText = 'Ocorreu um erro ao fazer login.';
+            // Adiciona a chamada FETCH para sua nova API
+            try {
+                const response = await fetch(`${API_URL}/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        senha: senha
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    // SUCESSO!
+                    console.log('Login bem-sucedido!');
+                    
+                    // A parte MAIS IMPORTANTE: Salvar o "Token" e o NOME no navegador
+                    localStorage.setItem('basicBankToken', data.token);
+                    localStorage.setItem('basicBankUserEmail', email); // Mantido por segurança
+                    localStorage.setItem('basicBankUserName', data.nome);
+
+                    if (mensagemErroLogin) mensagemErroLogin.innerText = "";
+                    window.location.href = 'dashboard.html';
+                } else {
+                    // Erro vindo do servidor (ex: "Senha incorreta")
+                    console.error('Erro no login:', data.message);
+                    if (mensagemErroLogin) {
+                        mensagemErroLogin.innerText = data.message || 'Ocorreu um erro ao fazer login.';
                     }
                 }
-            });
-    });
-}
 
-// --- PÁGINA DASHBOARD (O "GUARDA" E O LOGOUT) ---
-firebase.auth().onAuthStateChanged((user) => {
+            } catch (error) {
+                console.error('Erro de rede no login:', error);
+                if (mensagemErroLogin) {
+                    mensagemErroLogin.innerText = 'Não foi possível conectar ao servidor.';
+                }
+            }
+        });
+    }
+
+    // --- PÁGINA DASHBOARD (O "GUARDA" E O LOGOUT) ---
+
+    // Adiciona o novo "guarda" baseado no Token
     const isDashboardPage = window.location.pathname.endsWith('dashboard.html');
-    
+
     if (isDashboardPage) {
+        const token = localStorage.getItem('basicBankToken');
+        const userName = localStorage.getItem('basicBankUserName');
+        const userEmail = localStorage.getItem('basicBankUserEmail'); // Mantido para fallback
+        
         const loadingSpinner = document.getElementById('loading-spinner');
         const dashboardContent = document.getElementById('dashboard-content');
-        
-        if (user) {
-            if (user.emailVerified) {
-                console.log('Usuário logado e verificado:', user.email);
-                const welcomeMessage = document.getElementById('welcome-message');
-                if (welcomeMessage) {
-                    welcomeMessage.innerText = `Olá, bem-vindo(a) de volta ${user.email}!`;
-                }
-                if (loadingSpinner) loadingSpinner.style.display = 'none';
-                if (dashboardContent) dashboardContent.style.display = 'block';
 
-                const botaoLogout = document.getElementById('logout'); // Corrigido: o ID no seu HTML é 'logout'
-                if (botaoLogout) {
-                    botaoLogout.addEventListener('click', () => {
-                        firebase.auth().signOut().then(() => {
-                            console.log('Usuário deslogado.');
-                            alert('Você foi desconectado.');
-                            window.location.href = 'login.html';
-                        }).catch((error) => {
-                            console.error('Erro ao deslogar:', error);
-                        });
-                    });
-                }
-                
-            } else {
-                console.log('Usuário logado, mas e-mail não verificado.');
-                firebase.auth().signOut();
-                alert('Sua conta foi criada, mas seu e-mail ainda não foi verificado. Por favor, verifique seu e-mail e tente fazer login novamente.');
-                window.location.href = 'login.html';
+        if (token && displayName) {
+            // Usuário está "logado" (tem um token)
+            console.log('Usuário logado:', userName);
+
+            // Atualiza a mensagem de boas-vindas
+            // O seu HTML tem "Olá, Usuário!" dentro de um <h1>
+            const welcomeHeader = document.querySelector('#dashboard-content h1');
+            if (welcomeHeader) {
+                welcomeHeader.innerText = `Olá, ${userName}!`;
             }
-            
+
+            if (loadingSpinner) loadingSpinner.style.display = 'none';
+            if (dashboardContent) dashboardContent.style.display = 'block';
+
+            // Configura o botão de Logout
+            const botaoLogout = document.getElementById('logout');
+            if (botaoLogout) {
+                botaoLogout.addEventListener('click', (e) => {
+                    e.preventDefault(); // Previne que o link seja seguido
+                    
+                    // Limpa o "passaporte" (token)
+                    localStorage.removeItem('basicBankToken');
+                    localStorage.removeItem('basicBankUserEmail');
+                    localStorage.removeItem('basicBankUserName');
+
+                    console.log('Usuário deslogado.');
+                    // alert('Você foi desconectado.'); // Removido
+                    window.location.href = 'login.html';
+                });
+            }
         } else {
-            console.log('Nenhum usuário logado. Redirecionando para login.');
-            alert('Você precisa estar logado para acessar esta página.');
+            // Não tem token, redireciona para o login
+            console.log('Nenhum token encontrado. Redirecionando para login.');
+
             window.location.href = 'login.html';
         }
     }
-});
 
     // --- SIMULAÇÃO DE ENVIO DE FORMULÁRIO DE CONTATO ---
     function simulateFormSubmit(formId, messageText) {
         const form = document.getElementById(formId);
         if (form) {
-            form.addEventListener('submit', function(event) {
-                event.preventDefault(); 
+            form.addEventListener('submit', function (event) {
+                event.preventDefault();
                 const oldMessage = document.getElementById('successMessage');
                 if (oldMessage) {
                     oldMessage.remove();
@@ -315,7 +293,7 @@ firebase.auth().onAuthStateChanged((user) => {
     }
 
     simulateFormSubmit(
-        'contactForm', 
+        'contactForm',
         'Mensagem enviada com sucesso! Entraremos em contato em breve.'
     );
 
