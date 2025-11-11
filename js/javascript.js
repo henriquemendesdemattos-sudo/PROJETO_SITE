@@ -125,6 +125,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
             // --- LÓGICA DE CADASTRO ---
 
+            // Otimização: Desabilita o botão para evitar cliques duplicados
+            if (botaoCadastro) {
+                botaoCadastro.disabled = true;
+                botaoCadastro.innerText = 'Criando conta...';
+            }
+
             // Adiciona a chamada FETCH para sua nova API
             try {
                 const response = await fetch(`${API_URL}/register`, {
@@ -157,6 +163,12 @@ document.addEventListener('DOMContentLoaded', function () {
             } catch (error) {
                 console.error('Erro de rede no cadastro:', error);
                 mostrarErro('Não foi possível conectar ao servidor. Tente novamente mais tarde.');
+            } finally {
+                // Otimização: Reabilita o botão, não importa se deu certo ou errado
+                if (botaoCadastro) {
+                    botaoCadastro.disabled = false;
+                    botaoCadastro.innerText = 'Finalizar Cadastro';
+                }
             }
             // --- FIM DA LÓGICA DE CADASTRO ---
         });
@@ -165,6 +177,8 @@ document.addEventListener('DOMContentLoaded', function () {
     // --- PÁGINA DE LOGIN ---
     const formLogin = document.getElementById('loginForm');
     if (formLogin) {
+        const botaoLogin = formLogin.querySelector('button[type="submit"]'); // Encontra o botão de login
+        
         formLogin.addEventListener('submit', async (evento) => {
             evento.preventDefault();
             const email = document.getElementById('email-login').value;
@@ -172,6 +186,13 @@ document.addEventListener('DOMContentLoaded', function () {
             const mensagemErroLogin = document.getElementById('mensagem-erro-login');
 
             console.log('Tentando logar:', email);
+
+            // Otimização: Desabilita o botão
+            if (botaoLogin) {
+                botaoLogin.disabled = true;
+                botaoLogin.innerText = 'Entrando...';
+            }
+            if (mensagemErroLogin) mensagemErroLogin.innerText = "";
 
             // Adiciona a chamada FETCH para sua nova API
             try {
@@ -197,7 +218,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     localStorage.setItem('basicBankUserEmail', email); // Mantido por segurança
                     localStorage.setItem('basicBankUserName', data.nome);
 
-                    if (mensagemErroLogin) mensagemErroLogin.innerText = "";
                     window.location.href = 'dashboard.html';
                 } else {
                     // Erro vindo do servidor (ex: "Senha incorreta")
@@ -212,6 +232,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (mensagemErroLogin) {
                     mensagemErroLogin.innerText = 'Não foi possível conectar ao servidor.';
                 }
+            } finally {
+                // Otimização: Reabilita o botão de login
+                if (botaoLogin) {
+                    botaoLogin.disabled = false;
+                    botaoLogin.innerText = 'Entrar';
+                }
             }
         });
     }
@@ -224,7 +250,6 @@ document.addEventListener('DOMContentLoaded', function () {
     if (isDashboardPage) {
         const token = localStorage.getItem('basicBankToken');
         const userName = localStorage.getItem('basicBankUserName');
-        const userEmail = localStorage.getItem('basicBankUserEmail'); // Mantido para fallback
         
         const loadingSpinner = document.getElementById('loading-spinner');
         const dashboardContent = document.getElementById('dashboard-content');
