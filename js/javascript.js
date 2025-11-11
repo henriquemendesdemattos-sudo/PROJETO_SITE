@@ -73,9 +73,23 @@ document.addEventListener('DOMContentLoaded', function () {
         // Event listener do formulário de cadastro
         formCadastro.addEventListener('submit', async (evento) => {
             evento.preventDefault();
-
+            
+            // Função helper para mostrar erro
             const mostrarErro = (mensagem) => {
-                if (mensagemErro) mensagemErro.innerText = mensagem;
+                if (mensagemErro) {
+                    mensagemErro.innerText = mensagem;
+                    mensagemErro.classList.remove('text-success');
+                    mensagemErro.classList.add('text-danger');
+                }
+            };
+
+            // Função helper para mostrar sucesso (NOVO)
+            const mostrarSucesso = (mensagem) => {
+                if (mensagemErro) {
+                    mensagemErro.innerText = mensagem;
+                    mensagemErro.classList.remove('text-danger');
+                    mensagemErro.classList.add('text-success');
+                }
             };
             
             if (mensagemErro && !mensagemErro.innerText.includes("CEP")) {
@@ -152,9 +166,13 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (response.ok) {
                     // Sucesso!
                     console.log('Cadastro bem-sucedido:', data.message);
+                    mostrarSucesso('Conta criada com sucesso! Redirecionando para o login...');
 
-                    alert('Conta criada com sucesso! Você já pode fazer o login.');
-                    window.location.href = 'login.html';
+                    // Adiciona um pequeno delay para o usuário ler a mensagem antes de redirecionar
+                    setTimeout(() => {
+                        window.location.href = 'login.html';
+                    }, 2500); // Redireciona após 2.5 segundos
+
                 } else {
                     // Erro vindo do servidor (ex: "E-mail já existe")
                     mostrarErro(data.message || 'Ocorreu um erro ao criar a conta.');
@@ -165,9 +183,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 mostrarErro('Não foi possível conectar ao servidor. Tente novamente mais tarde.');
             } finally {
                 // Otimização: Reabilita o botão, não importa se deu certo ou errado
-                if (botaoCadastro) {
-                    botaoCadastro.disabled = false;
-                    botaoCadastro.innerText = 'Finalizar Cadastro';
+                if (mensagemErro.classList.contains('text-danger')) {
+                     if (botaoCadastro) {
+                        botaoCadastro.disabled = false;
+                        botaoCadastro.innerText = 'Finalizar Cadastro';
+                    }
                 }
             }
             // --- FIM DA LÓGICA DE CADASTRO ---
