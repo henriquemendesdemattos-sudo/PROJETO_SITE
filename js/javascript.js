@@ -22,17 +22,21 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const buscarCep = async () => {
             if (!cepInput || !mensagemErro || !botaoCadastro) return;
-            const cep = cepInput.value.replace(/\D/g, '');
+            const cep = cepInput.value.replace(/\D/g, ''); // Limpa o CEP para ter apenas números
+            
+            // Se o campo está vazio, limpa tudo e sai
             if (cep.length === 0) {
                 limparCamposEndereco();
                 mensagemErro.innerText = "";
                 return;
             }
-            if (cep.length < 8) {
+
+            if (cep.length !== 8) {
                 limparCamposEndereco();
                 mensagemErro.innerText = "Formato de CEP inválido (deve ter 8 números).";
                 return;
             }
+
             if (cep.length === 8) {
                 botaoCadastro.disabled = true;
                 botaoCadastro.innerText = "Buscando CEP...";
@@ -41,6 +45,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 document.getElementById('cidade').value = 'Buscando...';
                 document.getElementById('estado').value = 'Buscando...';
                 mensagemErro.innerText = "";
+
                 try {
                     const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
                     const data = await response.json();
@@ -66,7 +71,7 @@ document.addEventListener('DOMContentLoaded', function () {
         };
 
         if (cepInput) {
-            cepInput.addEventListener('blur', buscarCep);
+            cepInput.addEventListener('blur', buscarCep); // 'blur' é acionado quando o usuário sai do campo
         }
         // --- FIM DA LÓGICA DO VIACEP ---
 
@@ -83,7 +88,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             };
 
-            // Função helper para mostrar sucesso (NOVO)
+            // Função helper para mostrar sucesso
             const mostrarSucesso = (mensagem) => {
                 if (mensagemErro) {
                     mensagemErro.innerText = mensagem;
@@ -92,10 +97,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             };
             
+            // Limpa erros anteriores (exceto erros de CEP)
             if (mensagemErro && !mensagemErro.innerText.includes("CEP")) {
                 mensagemErro.innerText = "";
             }
 
+            // Coleta de dados
             const nome = document.getElementById('nome').value;
             const email = document.getElementById('email').value;
             const senha = document.getElementById('senha').value;
@@ -182,7 +189,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 console.error('Erro de rede no cadastro:', error);
                 mostrarErro('Não foi possível conectar ao servidor. Tente novamente mais tarde.');
             } finally {
-                // Otimização: Reabilita o botão, não importa se deu certo ou errado
+                // Otimização: Reabilita o botão se o cadastro falhou
                 if (mensagemErro.classList.contains('text-danger')) {
                      if (botaoCadastro) {
                         botaoCadastro.disabled = false;
@@ -235,7 +242,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     
                     // A parte MAIS IMPORTANTE: Salvar o "Token" e o NOME no navegador
                     localStorage.setItem('basicBankToken', data.token);
-                    localStorage.setItem('basicBankUserEmail', email); // Mantido por segurança
                     localStorage.setItem('basicBankUserName', data.nome);
 
                     window.location.href = 'dashboard.html';
@@ -245,14 +251,18 @@ document.addEventListener('DOMContentLoaded', function () {
                     if (mensagemErroLogin) {
                         mensagemErroLogin.innerText = data.message || 'Ocorreu um erro ao fazer login.';
                     }
+                    // Reabilita o botão se o login falhar
+                    if (botaoLogin) {
+                        botaoLogin.disabled = false;
+                        botaoLogin.innerText = 'Entrar';
+                    }
                 }
 
             } catch (error) {
                 console.error('Erro de rede no login:', error);
                 if (mensagemErroLogin) {
                     mensagemErroLogin.innerText = 'Não foi possível conectar ao servidor.';
-                }
-            } finally {
+                }            
                 // Otimização: Reabilita o botão de login
                 if (botaoLogin) {
                     botaoLogin.disabled = false;
@@ -264,7 +274,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // --- PÁGINA DASHBOARD (O "GUARDA" E O LOGOUT) ---
 
-    // Adiciona o novo "guarda" baseado no Token
+    // Esta parte verifica se o usuário está logado antes de mostrar a página
     const isDashboardPage = window.location.pathname.endsWith('dashboard.html');
 
     if (isDashboardPage) {
@@ -282,6 +292,7 @@ document.addEventListener('DOMContentLoaded', function () {
             // O seu HTML tem "Olá, Usuário!" dentro de um <h1>
             const welcomeHeader = document.querySelector('#dashboard-content h1');
             if (welcomeHeader) {
+                // Isso substitui o "Olá, Usuário!"
                 welcomeHeader.innerText = `Olá, ${userName}!`;
             }
 
@@ -296,23 +307,21 @@ document.addEventListener('DOMContentLoaded', function () {
                     
                     // Limpa o "passaporte" (token)
                     localStorage.removeItem('basicBankToken');
-                    localStorage.removeItem('basicBankUserEmail');
                     localStorage.removeItem('basicBankUserName');
 
                     console.log('Usuário deslogado.');
-                    // alert('Você foi desconectado.'); // Removido
                     window.location.href = 'login.html';
                 });
             }
         } else {
             // Não tem token, redireciona para o login
             console.log('Nenhum token encontrado. Redirecionando para login.');
-
             window.location.href = 'login.html';
         }
     }
 
     // --- SIMULAÇÃO DE ENVIO DE FORMULÁRIO DE CONTATO ---
+    
     function simulateFormSubmit(formId, messageText) {
         const form = document.getElementById(formId);
         if (form) {
