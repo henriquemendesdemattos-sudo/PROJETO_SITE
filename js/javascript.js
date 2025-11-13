@@ -181,7 +181,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     }, 2500); // Redireciona após 2.5 segundos
 
                 } else {
-                    // Erro vindo do servidor (ex: "E-mail já existe")
+                    // Erro vindo do servidor (ex: "Esse e-mail já está cadastrado")
                     mostrarErro(data.message || 'Ocorreu um erro ao criar a conta.');
                 }
 
