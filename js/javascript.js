@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Define a URL base da sua API
 
-    const API_URL = 'https://basicbank-backend-ebgqbnfkh4eteqgf.eastus2-01.azurewebsites.net';
+    const API_URL = 'http://localhost:3000';
 
     // --- PÁGINA DE CADASTRO ---
     const formCadastro = document.getElementById('cadastroForm');
@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', function () {
             if (!cepInput || !mensagemErro || !botaoCadastro) return;
             const cep = cepInput.value.replace(/\D/g, ''); // Limpa o CEP para ter apenas números
             
-            // Se o campo está vazio, limpa tudo e sai
+            // Se o campo está vazio, limpa tudo
             if (cep.length === 0) {
                 limparCamposEndereco();
                 mensagemErro.innerText = "";
